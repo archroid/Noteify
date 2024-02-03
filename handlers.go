@@ -34,12 +34,19 @@ func AddUserHanlder(w http.ResponseWriter, r *http.Request) {
 		CREATED_AT: int(time.Now().Unix()),
 	}
 
-	_, err := database.GetUser(username)
-	if err != nil {
-		database.AddUser(user)
-		w.WriteHeader(http.StatusOK)
-	} else {
-		log.Error(err)
+	founduser, _ := database.GetUser(username)
+
+	if founduser.Username == user.Username {
 		w.WriteHeader(http.StatusConflict)
+		w.Write([]byte("User already exists"))
+	} else {
+		err := database.AddUser(user)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+		} else {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("User added successfully"))
+		}
 	}
+
 }

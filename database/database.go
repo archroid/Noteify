@@ -45,14 +45,17 @@ func Init() error {
 }
 
 func AddUser(user models.User) error {
-	database.Exec("INSERT INTO users (username, password, created_at, token, id) VALUES (?, ?, ?, ?,?)", user.Username, user.Password, user.CREATED_AT, user.Token, user.ID)
+	_ , err := database.Exec("INSERT INTO users (username, password, created_at, token) VALUES (?, ?, ?, ?)", user.Username, user.Password, user.CREATED_AT, user.Token)
+	if err != nil{
+		return err
+	}
 	return nil
 }
 
 func GetUser(username string) (models.User, error) {
 	rows, err := database.Query("SELECT * FROM users WHERE username = ?", username)
 	if err != nil {
-	    return models.User{}, err
+		return models.User{}, errors.New("user not found")
 	}
 	defer rows.Close()
  
@@ -60,8 +63,8 @@ func GetUser(username string) (models.User, error) {
 	if rows.Next() {
 	    err = rows.Scan(&user.ID, &user.Username, &user.Password, &user.CREATED_AT, &user.Token)
 	    if err != nil {
-		   return models.User{}, err
-	    }
+		return models.User{}, errors.New("user not found")
+	}
 	} else {
 	    return models.User{}, errors.New("user not found")
 	}
