@@ -28,7 +28,10 @@ func main() {
 
 	r.HandleFunc("/api/user/add", AddUserHanlder).Methods("POST")
 	r.HandleFunc("/api/user/login", LoginUserHanlder).Methods("POST")
-	r.HandleFunc("/api/posts", GetPostsHandler)
+
+	r.HandleFunc("/api/post/add", AddPostHandler).Methods("POST")
+	r.HandleFunc("/api/posts", GetPostsHandler).Methods("GET")
+	r.HandleFunc("/api/post/{username}", GetUserPostHandler).Methods("GET")
 
 	log.Info("Server started: http://" + localip + ":8090")
 	log.Error(http.ListenAndServe(":8090", r))

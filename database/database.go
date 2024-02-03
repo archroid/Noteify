@@ -103,6 +103,24 @@ func GetPosts() ([]models.Post, error) {
 	return posts, nil
 }
 
+func GetUserPosts(username string) ([]models.Post, error) {
+	var posts []models.Post
+	user, err := GetUser(username)
+	if err != nil {
+		return posts, err
+	}
+	rows, err := database.Query("SELECT * FROM Posts WHERE OwnerID = ?", user.ID)
+	if err != nil {
+		return posts, err
+	}
+	for rows.Next() {
+		var post models.Post
+		rows.Scan(&post.PostID, &post.PostTitle, &post.PostDate, &post.Deleted, &post.OwnerID)
+		posts = append(posts, post)
+	}
+	return posts, nil
+}
+
 func GetPost(postID int) (models.Post, error) {
 	var post models.Post
 
