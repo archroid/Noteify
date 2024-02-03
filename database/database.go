@@ -1,6 +1,7 @@
 package database
 
 import (
+	"archroid/noteify/models"
 	"database/sql"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -14,9 +15,9 @@ func Init() {
 	}
 
 	_, err = database.Exec(`CREATE TABLE IF NOT EXISTS users (
+		ID INTEGER PRIMARY KEY,
 		username TEXT,
 		password TEXT,
-		ID INTEGER PRIMARY KEY,
 		created_at INTEGER,
 		token TEXT
 	)`)
@@ -38,16 +39,75 @@ func Init() {
 
 }
 
-// statement, _ := database.Prepare("CREATE TABLE IF NOT EXISTS people (id INTEGER PRIMARY KEY, firstname TEXT, lastname TEXT) ")
-// statement.Exec()
-// statement, _ = database.Prepare("INSERT INTO fuckers (firstname,lastname) VALUES (?,?)")
-// statement.Exec("Nic", "Reboy")
+func AddUser(user models.User) {
+	database, err := sql.Open("sqlite3", "./data.db")
+	if err != nil {
+		logrus.Error(err)
+	}
+	database.Exec("INSERT INTO users (username, password, created_at, token, id) VALUES (?, ?, ?, ?,?)", user.Username, user.Password, user.CREATED_AT, user.Token, user.ID)
+}
 
-// rows, _ := database.Query("SELECT * FROM fuckers")
-// var id int
-// var firstname string
-// var lastname string
-// for rows.Next() {
-// 	rows.Scan(&id, &firstname, &lastname)
-// 	fmt.Println(strconv.Itoa(id) + ": " + firstname + " " + lastname)
-// }
+func GetUser(username string) models.User {
+	database, err := sql.Open("sqlite3", "./data.db")
+	if err != nil {
+		logrus.Error(err)
+	}
+	rows, _ := database.Query("SELECT * FROM users WHERE username = ?", username)
+	var user models.User
+	for rows.Next() {
+		rows.Scan(&user.ID, &user.Username, &user.Password, &user.CREATED_AT, &user.Token)
+	}
+	return user
+}
+
+func DeleteUser(username string) {
+	database, err := sql.Open("sqlite3", "./data.db")
+	if err != nil {
+		logrus.Error(err)
+	}
+	database.Exec("DELETE FROM users WHERE username = ?", username)
+}
+
+func AddPost(post models.Post) {
+	database, err := sql.Open("sqlite3", "./data.db")
+	if err != nil {
+		logrus.Error(err)
+	}
+	database.Exec("INSERT INTO Posts (PostTitle, PostDate, Deleted, OwnerID) VALUES (?, ?, ?, ?)", post.PostTitle, post.PostDate, post.Deleted, post.OwnerID)
+}
+
+func GetPosts() []models.Post {
+	database, err := sql.Open("sqlite3", "./data.db")
+	if err != nil {
+		logrus.Error(err)
+	}
+	rows, _ := database.Query("SELECT * FROM Posts")
+	var posts []models.Post
+	for rows.Next() {
+		var post models.Post
+		rows.Scan(&post.PostID, &post.PostTitle, &post.PostDate, &post.Deleted, &post.OwnerID)
+		posts = append(posts, post)
+	}
+	return posts
+}
+
+func GetPost(postID int) models.Post {
+	database, err := sql.Open("sqlite3", "./data.db")
+	if err != nil {
+		logrus.Error(err)
+	}
+	rows, _ := database.Query("SELECT * FROM Posts WHERE PostID = ?", postID)
+	var post models.Post
+	for rows.Next() {
+		rows.Scan(&post.PostID, &post.PostTitle, &post.PostDate, &post.Deleted, &post.OwnerID)
+	}
+	return post
+}
+
+func DeletePost(postID int) {
+	database, err := sql.Open("sqlite3", "./data.db")
+	if err != nil {
+		logrus.Error(err)
+	}
+	database.Exec("DELETE FROM Posts WHERE PostID = ?", postID)
+}
