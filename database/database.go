@@ -3,6 +3,7 @@ package database
 import (
 	"archroid/noteify/models"
 	"database/sql"
+	"errors"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -49,14 +50,24 @@ func AddUser(user models.User) error {
 }
 
 func GetUser(username string) (models.User, error) {
-	rows, _ := database.Query("SELECT * FROM users WHERE username = ?", username)
-	var user models.User
-	for rows.Next() {
-		rows.Scan(&user.ID, &user.Username, &user.Password, &user.CREATED_AT, &user.Token)
+	rows, err := database.Query("SELECT * FROM users WHERE username = ?", username)
+	if err != nil {
+	    return models.User{}, err
 	}
-
+	defer rows.Close()
+ 
+	var user models.User
+	if rows.Next() {
+	    err = rows.Scan(&user.ID, &user.Username, &user.Password, &user.CREATED_AT, &user.Token)
+	    if err != nil {
+		   return models.User{}, err
+	    }
+	} else {
+	    return models.User{}, errors.New("user not found")
+	}
+ 
 	return user, nil
-}
+ }
 
 func DeleteUser(username string) error {
 	database.Exec("DELETE FROM users WHERE username = ?", username)
