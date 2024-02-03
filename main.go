@@ -2,8 +2,6 @@ package main
 
 import (
 	"archroid/noteify/database"
-	"archroid/noteify/models"
-	"encoding/json"
 	"net"
 	"net/http"
 	"os"
@@ -27,22 +25,11 @@ func main() {
 	}
 
 	r := mux.NewRouter()
+
+	r.HandleFunc("/api/user/add", AddUserHanlder).Methods("POST")
 	r.HandleFunc("/api/posts", GetPostsHandler)
 
 	log.Info("Server started: http://" + localip + ":8090")
 	log.Error(http.ListenAndServe(":8090", r))
-	// go func() {
 
-	// }()
-}
-
-func GetPostsHandler(w http.ResponseWriter, r *http.Request) {
-	var posts []models.Post
-	posts, err := database.GetPosts()
-	if err != nil {
-		log.Error(err)
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(posts)
 }

@@ -54,6 +54,7 @@ func GetUser(username string) (models.User, error) {
 	for rows.Next() {
 		rows.Scan(&user.ID, &user.Username, &user.Password, &user.CREATED_AT, &user.Token)
 	}
+
 	return user, nil
 }
 
@@ -61,7 +62,6 @@ func DeleteUser(username string) error {
 	database.Exec("DELETE FROM users WHERE username = ?", username)
 	return nil
 }
-
 
 func AddPost(post models.Post) error {
 	database.Exec("INSERT INTO Posts (PostTitle, PostDate, Deleted, OwnerID) VALUES (?, ?, ?, ?)", post.PostTitle, post.PostDate, post.Deleted, post.OwnerID)
@@ -92,4 +92,3 @@ func DeletePost(postID int) error {
 	database.Exec("DELETE FROM Posts WHERE PostID = ?", postID)
 	return nil
 }
-
