@@ -50,3 +50,25 @@ func AddUserHanlder(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+func LoginUserHanlder(w http.ResponseWriter, r *http.Request) {
+
+	username := r.PostFormValue("username")
+	password := r.PostFormValue("password")
+
+	user, err := database.GetUser(username)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("User not found"))
+		return
+	}
+
+	if user.Password == password {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(user)
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte("Invalid credentials"))
+	}
+
+}

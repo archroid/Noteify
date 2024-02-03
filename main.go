@@ -27,6 +27,7 @@ func main() {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/api/user/add", AddUserHanlder).Methods("POST")
+	r.HandleFunc("/api/user/login", LoginUserHanlder).Methods("POST")
 	r.HandleFunc("/api/posts", GetPostsHandler)
 
 	log.Info("Server started: http://" + localip + ":8090")
