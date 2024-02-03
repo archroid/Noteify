@@ -39,47 +39,51 @@ func Init() {
 
 }
 
-func AddUser(user models.User) {
+func AddUser(user models.User) error {
 	database, err := sql.Open("sqlite3", "./data.db")
 	if err != nil {
-		logrus.Error(err)
+		return err
 	}
 	database.Exec("INSERT INTO users (username, password, created_at, token, id) VALUES (?, ?, ?, ?,?)", user.Username, user.Password, user.CREATED_AT, user.Token, user.ID)
+	return nil
 }
 
-func GetUser(username string) models.User {
+func GetUser(username string) (models.User, error) {
 	database, err := sql.Open("sqlite3", "./data.db")
 	if err != nil {
-		logrus.Error(err)
+		return models.User{}, err
 	}
 	rows, _ := database.Query("SELECT * FROM users WHERE username = ?", username)
 	var user models.User
 	for rows.Next() {
 		rows.Scan(&user.ID, &user.Username, &user.Password, &user.CREATED_AT, &user.Token)
 	}
-	return user
+	return user, nil
 }
 
-func DeleteUser(username string) {
+func DeleteUser(username string) error {
 	database, err := sql.Open("sqlite3", "./data.db")
 	if err != nil {
-		logrus.Error(err)
+		return err
 	}
 	database.Exec("DELETE FROM users WHERE username = ?", username)
+	return nil
 }
 
-func AddPost(post models.Post) {
+
+func AddPost(post models.Post) error {
 	database, err := sql.Open("sqlite3", "./data.db")
 	if err != nil {
-		logrus.Error(err)
+		return err
 	}
 	database.Exec("INSERT INTO Posts (PostTitle, PostDate, Deleted, OwnerID) VALUES (?, ?, ?, ?)", post.PostTitle, post.PostDate, post.Deleted, post.OwnerID)
+	return nil
 }
 
-func GetPosts() []models.Post {
+func GetPosts() ([]models.Post, error) {
 	database, err := sql.Open("sqlite3", "./data.db")
 	if err != nil {
-		logrus.Error(err)
+		return []models.Post{}, err
 	}
 	rows, _ := database.Query("SELECT * FROM Posts")
 	var posts []models.Post
@@ -88,26 +92,28 @@ func GetPosts() []models.Post {
 		rows.Scan(&post.PostID, &post.PostTitle, &post.PostDate, &post.Deleted, &post.OwnerID)
 		posts = append(posts, post)
 	}
-	return posts
+	return posts, nil
 }
 
-func GetPost(postID int) models.Post {
+func GetPost(postID int) (models.Post, error) {
 	database, err := sql.Open("sqlite3", "./data.db")
 	if err != nil {
-		logrus.Error(err)
+		return models.Post{}, err
 	}
 	rows, _ := database.Query("SELECT * FROM Posts WHERE PostID = ?", postID)
 	var post models.Post
 	for rows.Next() {
 		rows.Scan(&post.PostID, &post.PostTitle, &post.PostDate, &post.Deleted, &post.OwnerID)
 	}
-	return post
+	return post, nil
 }
 
-func DeletePost(postID int) {
+func DeletePost(postID int) error {
 	database, err := sql.Open("sqlite3", "./data.db")
 	if err != nil {
-		logrus.Error(err)
+		return err
 	}
 	database.Exec("DELETE FROM Posts WHERE PostID = ?", postID)
+	return nil
 }
+
