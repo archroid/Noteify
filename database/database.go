@@ -5,13 +5,12 @@ import (
 	"database/sql"
 
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/sirupsen/logrus"
 )
 
-func Init() {
+func Init() error {
 	database, err := sql.Open("sqlite3", "./data.db")
 	if err != nil {
-		logrus.Error(err)
+		return err
 	}
 
 	_, err = database.Exec(`CREATE TABLE IF NOT EXISTS users (
@@ -22,7 +21,7 @@ func Init() {
 		token TEXT
 	)`)
 	if err != nil {
-		logrus.Error(err)
+		return err
 	}
 
 	_, err = database.Exec(`CREATE TABLE IF NOT EXISTS Posts (
@@ -34,8 +33,10 @@ func Init() {
 		FOREIGN KEY(OwnerID) REFERENCES users(id)
 		)`)
 	if err != nil {
-		logrus.Error(err)
+		return err
 	}
+
+	return nil
 
 }
 
